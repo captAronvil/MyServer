@@ -1,25 +1,25 @@
-#pragma comment(lib,"Ws2_32.lib")                           //подключение библиотеки с сокетами
-#include "WinSock2.h"                                       //подключение сами сокетов
-#include <iostream>											//для вывода данных в консоль
-#include "WS2tcpip.h"                                       //дает необходимую функции для подключения, получения информации о сервере
+#pragma comment(lib,"Ws2_32.lib")                           //РїРѕРґРєР»СЋС‡РµРЅРёРµ Р±РёР±Р»РёРѕС‚РµРєРё СЃ СЃРѕРєРµС‚Р°РјРё
+#include "WinSock2.h"                                       //РїРѕРґРєР»СЋС‡РµРЅРёРµ СЃР°РјРё СЃРѕРєРµС‚РѕРІ
+#include <iostream>					    //РґР»СЏ РІС‹РІРѕРґР° РґР°РЅРЅС‹С… РІ РєРѕРЅСЃРѕР»СЊ
+#include "WS2tcpip.h"                                       //РґР°РµС‚ РЅРµРѕР±С…РѕРґРёРјСѓСЋ С„СѓРЅРєС†РёРё РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ, РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ СЃРµСЂРІРµСЂРµ
 
-SOCKET Connect;                                             //принимает подключаемых пользователей
-SOCKET* Connections;										//хранит всех пользователей (массив)
-SOCKET Listen;												//для подключения
+SOCKET Connect;                                             //РїСЂРёРЅРёРјР°РµС‚ РїРѕРґРєР»СЋС‡Р°РµРјС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+SOCKET* Connections;					    //С…СЂР°РЅРёС‚ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ (РјР°СЃСЃРёРІ)
+SOCKET Listen;						    //РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ
 
-int ClientCount = 0;										//количество подключаемых пользователей
+int ClientCount = 0;					    //РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРґРєР»СЋС‡Р°РµРјС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
 
-void SendMessageToClient(int ID)							//функция рассылки сообщения всем пользователям
+void SendMessageToClient(int ID)			    //С„СѓРЅРєС†РёСЏ СЂР°СЃСЃС‹Р»РєРё СЃРѕРѕР±С‰РµРЅРёСЏ РІСЃРµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј
 {
-	char* buffer = new char[1024];							//буфер
-	for (;; Sleep(75))										//очередной цикл без конца и края
+	char* buffer = new char[1024];			    			//Р±СѓС„РµСЂ
+	for (;; Sleep(75))				    			//РѕС‡РµСЂРµРґРЅРѕР№ С†РёРєР» Р±РµР· РєРѕРЅС†Р° Рё РєСЂР°СЏ
 	{
-		memset(buffer, 0, sizeof(buffer));					//чистим буфер
-		if (recv(Connections[ID], buffer, 1024, NULL))		//получаем сообщение сохраняем в буфер
+		memset(buffer, 0, sizeof(buffer));	                        //С‡РёСЃС‚РёРј Р±СѓС„РµСЂ
+		if (recv(Connections[ID], buffer, 1024, NULL))		        //РїРѕР»СѓС‡Р°РµРј СЃРѕРѕР±С‰РµРЅРёРµ СЃРѕС…СЂР°РЅСЏРµРј РІ Р±СѓС„РµСЂ
 		{
-			printf(buffer);									//выводим сообщение
-			printf("\n");									//а это вообще надо комментировать?
-			for (int i = 0; i <= ClientCount; i++)			//теперь передаем всем пользователям сообщение
+			printf(buffer);						//РІС‹РІРѕРґРёРј СЃРѕРѕР±С‰РµРЅРёРµ
+			printf("\n");						//Р° СЌС‚Рѕ РІРѕРѕР±С‰Рµ РЅР°РґРѕ РєРѕРјРјРµРЅС‚РёСЂРѕРІР°С‚СЊ?
+			for (int i = 0; i <= ClientCount; i++)			//С‚РµРїРµСЂСЊ РїРµСЂРµРґР°РµРј РІСЃРµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј СЃРѕРѕР±С‰РµРЅРёРµ
 			{
 				send(Connections[i], buffer, strlen(buffer), NULL);
 			}
@@ -31,47 +31,47 @@ void SendMessageToClient(int ID)							//функция рассылки сообщения всем пользов
 int main()
 {
 	setlocale(LC_ALL, "Rus");
-	WSAData data;											//создаем переменную  
-	WORD version = MAKEWORD(2, 2);							//указываем версию сокетов
+	WSAData data;							//СЃРѕР·РґР°РµРј РїРµСЂРµРјРµРЅРЅСѓСЋ  
+	WORD version = MAKEWORD(2, 2);					//СѓРєР°Р·С‹РІР°РµРј РІРµСЂСЃРёСЋ СЃРѕРєРµС‚РѕРІ
 
-	int res = WSAStartup(version, &data);					//инициализируем сокеты
+	int res = WSAStartup(version, &data);				//РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРѕРєРµС‚С‹
 	if (res != 0)											
 	{
 		return 0;
 	}
 
-	struct addrinfo hints;									//переменная для работы с сокетом
+	struct addrinfo hints;						//РїРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ СЃРѕРєРµС‚РѕРј
 	struct addrinfo * result;
 
 
-	Connections = (SOCKET*)calloc(64, sizeof(SOCKET));		//инициализруем массив
+	Connections = (SOCKET*)calloc(64, sizeof(SOCKET));		//РёРЅРёС†РёР°Р»РёР·СЂСѓРµРј РјР°СЃСЃРёРІ
 
-	ZeroMemory(&hints, sizeof(hints));						//очищаем hinst
+	ZeroMemory(&hints, sizeof(hints));				//РѕС‡РёС‰Р°РµРј hinst
 
-	hints.ai_family = AF_INET;								//
-	hints.ai_flags = AI_PASSIVE;							//ну..как бы..флаг...
-	hints.ai_socktype = SOCK_STREAM;						//тип сокета
-	hints.ai_protocol = IPPROTO_TCP;						//тип протокола
+	hints.ai_family = AF_INET;								
+	hints.ai_flags = AI_PASSIVE;					//РЅСѓ..РєР°Рє Р±С‹..С„Р»Р°Рі...
+	hints.ai_socktype = SOCK_STREAM;				//С‚РёРї СЃРѕРєРµС‚Р°
+	hints.ai_protocol = IPPROTO_TCP;				//С‚РёРї РїСЂРѕС‚РѕРєРѕР»Р°
 
-	getaddrinfo(NULL, "7770", &hints, &result);				//получение информации о хосте
+	getaddrinfo(NULL, "7770", &hints, &result);			//РїРѕР»СѓС‡РµРЅРёРµ РёРЅС„РѕСЂРјР°С†РёРё Рѕ С…РѕСЃС‚Рµ
 
-	Listen = socket(result->ai_family, result->ai_socktype, result->ai_protocol);   //настраиваем listen
-	bind(Listen, result->ai_addr, result->ai_addrlen);								//объявляем сервер
-	listen(Listen, SOMAXCONN);								//даем сокет для подключения
+	Listen = socket(result->ai_family, result->ai_socktype, result->ai_protocol);   //РЅР°СЃС‚СЂР°РёРІР°РµРј listen
+	bind(Listen, result->ai_addr, result->ai_addrlen);				//РѕР±СЉСЏРІР»СЏРµРј СЃРµСЂРІРµСЂ
+	listen(Listen, SOMAXCONN);							//РґР°РµРј СЃРѕРєРµС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ
 
-	freeaddrinfo(result);									//просто очищаем, сокеты уже настроены
+	freeaddrinfo(result);								//РїСЂРѕСЃС‚Рѕ РѕС‡РёС‰Р°РµРј, СЃРѕРєРµС‚С‹ СѓР¶Рµ РЅР°СЃС‚СЂРѕРµРЅС‹
 
-	printf("Start server...");								//подтверждение начала работы сервера
-	char m_connect[] = "Connect...;;;5";					//сщщбщение о подтверждении подключения
-	for (;; Sleep(100))										//бесконечный цикл
+	printf("Start server...");							//РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РЅР°С‡Р°Р»Р° СЂР°Р±РѕС‚С‹ СЃРµСЂРІРµСЂР°
+	char m_connect[] = "Connect...;;;5";						//СЃС‰С‰Р±С‰РµРЅРёРµ Рѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРё РїРѕРґРєР»СЋС‡РµРЅРёСЏ
+	for (;; Sleep(100))								//Р±РµСЃРєРѕРЅРµС‡РЅС‹Р№ С†РёРєР»
 	{
-		if (Connect = accept(Listen, NULL, NULL))			//проверка подключения
+		if (Connect = accept(Listen, NULL, NULL))				//РїСЂРѕРІРµСЂРєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ
 		{
-			printf("Client connect...\n");					//сообщение о подключении
-			Connections[ClientCount] = Connect;				//количество подключаемых пользователей
-			send(Connections[ClientCount], m_connect, strlen(m_connect), NULL); //отправляем клиенты сообщение о подключении к сереверу
-			ClientCount++;									//ну...счетчик как бы, лол
-			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)SendMessageToClient, (LPVOID)(ClientCount - 1), NULL, NULL); //создаем поток в котором запущена функция
+			printf("Client connect...\n");					//СЃРѕРѕР±С‰РµРЅРёРµ Рѕ РїРѕРґРєР»СЋС‡РµРЅРёРё
+			Connections[ClientCount] = Connect;				//РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРґРєР»СЋС‡Р°РµРјС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+			send(Connections[ClientCount], m_connect, strlen(m_connect), NULL); //РѕС‚РїСЂР°РІР»СЏРµРј РєР»РёРµРЅС‚С‹ СЃРѕРѕР±С‰РµРЅРёРµ Рѕ РїРѕРґРєР»СЋС‡РµРЅРёРё Рє СЃРµСЂРµРІРµСЂСѓ
+			ClientCount++;									//РЅСѓ...СЃС‡РµС‚С‡РёРє РєР°Рє Р±С‹, Р»РѕР»
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)SendMessageToClient, (LPVOID)(ClientCount - 1), NULL, NULL); //СЃРѕР·РґР°РµРј РїРѕС‚РѕРє, РІ РєРѕС‚РѕСЂРѕРј Р·Р°РїСѓС‰РµРЅР° С„СѓРЅРєС†РёСЏ
 		}
 	}
 	return 1;
